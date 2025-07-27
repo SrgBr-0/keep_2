@@ -7,9 +7,9 @@ export const AppDataSource = new DataSource({
     type: 'postgres',
     url: process.env.DATABASE_URL,
     entities: [User, VerificationCode, AuthToken],
-    synchronize: process.env.NODE_ENV === 'development', // Только для разработки!
+    synchronize: process.env.NODE_ENV === 'development',
     logging: process.env.NODE_ENV === 'development',
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: false, // Отключено для разработки
     schema: 'auth'
 });
 
@@ -17,11 +17,6 @@ export async function initializeDatabase() {
     try {
         await AppDataSource.initialize();
         console.log('✅ Database connected successfully');
-
-        if (process.env.NODE_ENV === 'development') {
-            await AppDataSource.synchronize();
-            console.log('✅ Database synchronized');
-        }
     } catch (error) {
         console.error('❌ Database connection failed:', error);
         process.exit(1);

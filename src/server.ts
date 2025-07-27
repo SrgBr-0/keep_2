@@ -1,11 +1,12 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { createRemultServer } from "remult/server";
+import { remultExpress } from "remult/remult-express";
 import { AppModule } from "./app.module";
 import { initializeDatabase } from "./config/database.config";
 import { errorHandler } from "./middleware/error.middleware";
 import { logger } from "./utils/logger";
+import { createPostgresDataProvider } from "remult/postgres";
 
 async function startServer() {
     try {
@@ -20,8 +21,12 @@ async function startServer() {
         app.use(express.json());
 
         // Создаем Remult API
-        const api = createRemultServer({
-            module: AppModule,
+        const api = remultExpress({
+            ...AppModule,
+            dataProvider: createPostgresDataProvider({
+                connectionString: process.env.DATABASE_URL!,
+                schema: 'auth'
+            }),
             admin: process.env.NODE_ENV === 'development'
         });
 
@@ -41,7 +46,7 @@ async function startServer() {
 
         app.listen(port, () => {
             logger.info(`🚀 Server started on port ${port}`);
-            logger.info(`📊 Admin panel: http://localhost:${port}/admin`);
+            logger.info(`📊 Admin panel: http://localhost:${port}/api/admin`);
             logger.info(`🏥 Health check: http://localhost:${port}/health`);
         });
 

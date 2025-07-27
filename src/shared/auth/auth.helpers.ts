@@ -1,4 +1,4 @@
-import { getRepository } from "remult";
+import { repo } from "remult";
 import { User } from "../../entities/User.entity";
 import { VerificationCode } from "../../entities/VerificationCode.entity";
 import { AuthToken } from "../../entities/AuthToken.entity";
@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: process.env.SMTP_SECURE === 'true',
@@ -17,8 +17,8 @@ const transporter = nodemailer.createTransporter({
 });
 
 export async function sendVerificationCode(email: string, userAgent?: string) {
-    const userRepo = getRepository(User);
-    const codeRepo = getRepository(VerificationCode);
+    const userRepo = repo(User);
+    const codeRepo = repo(VerificationCode);
 
     // Находим или создаем пользователя
     let user = await userRepo.findFirst({ email: email.toLowerCase() });
@@ -58,7 +58,7 @@ export async function sendVerificationCode(email: string, userAgent?: string) {
 
     // Отправляем email
     await transporter.sendMail({
-        from: `"Auth Service" <${process.env.SMTP_FROM_EMAIL}>`,
+        from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
         to: email,
         subject: 'Your Verification Code',
         text: `Your verification code is: ${code}`,
@@ -77,9 +77,9 @@ export async function sendVerificationCode(email: string, userAgent?: string) {
 }
 
 export async function verifyCode(email: string, code: string) {
-    const userRepo = getRepository(User);
-    const codeRepo = getRepository(VerificationCode);
-    const tokenRepo = getRepository(AuthToken);
+    const userRepo = repo(User);
+    const codeRepo = repo(VerificationCode);
+    const tokenRepo = repo(AuthToken);
 
     const user = await userRepo.findFirst({ email: email.toLowerCase() });
     if (!user) throw "User not found";
@@ -144,8 +144,8 @@ export async function verifyCode(email: string, code: string) {
 }
 
 export async function changePassword(userId: string, newPassword: string) {
-    const userRepo = getRepository(User);
-    const tokenRepo = getRepository(AuthToken);
+    const userRepo = repo(User);
+    const tokenRepo = repo(AuthToken);
 
     if (newPassword.length < 8) {
         throw "Password must be at least 8 characters long";
@@ -162,7 +162,7 @@ export async function changePassword(userId: string, newPassword: string) {
     }
 
     // Обновляем пароль
-    const passwordHash = await bcrypt.hash(newPassword, 12);
+    const passwordHash = await bcrypt.hash(newPassword, parseInt(process.env.BCRYPT_ROUNDS || '12'));
     await userRepo.update({ id: userId }, { passwordHash });
 
     // Отзываем все активные токены кроме текущего
@@ -175,7 +175,7 @@ export async function changePassword(userId: string, newPassword: string) {
 }
 
 export async function logout(token: string) {
-    const tokenRepo = getRepository(AuthToken);
+    const tokenRepo = repo(AuthToken);
 
     await tokenRepo.update(
         { token, isRevoked: false },
@@ -186,7 +186,7 @@ export async function logout(token: string) {
 }
 
 export async function logoutAll(userId: string) {
-    const tokenRepo = getRepository(AuthToken);
+    const tokenRepo = repo(AuthToken);
 
     await tokenRepo.update(
         { userId, isRevoked: false, expiresAt: { $gt: new Date() } },

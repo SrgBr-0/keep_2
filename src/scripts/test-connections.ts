@@ -11,12 +11,14 @@ async function testConnections() {
         console.log('✅ Database connection successful');
         await AppDataSource.destroy();
     } catch (error) {
-        console.error('❌ Database connection failed:', error.message);
+        const err = error as Error;
+        console.log(error)
+        console.error('❌ Database connection failed:', err.message);
     }
 
     // Тест SMTP
     try {
-        const transporter = nodemailer.createTransporter({
+        const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: parseInt(process.env.SMTP_PORT || '587'),
             secure: process.env.SMTP_SECURE === 'true',
@@ -29,7 +31,8 @@ async function testConnections() {
         await transporter.verify();
         console.log('✅ SMTP connection successful');
     } catch (error) {
-        console.error('❌ SMTP connection failed:', error.message);
+        const err = error as Error;
+        console.error('❌ SMTP connection failed:', err.message);
     }
 }
 
