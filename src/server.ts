@@ -79,7 +79,7 @@ async function startServer() {
             }
         });
 
-        app.use('/api', api);
+        app.use(api);
 
         // Health check endpoint
         app.get('/health', (req, res) => {
