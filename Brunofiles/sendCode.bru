@@ -1,0 +1,30 @@
+meta {
+  name: sendCode
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/api/sendCode
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "args": ["s.brykov@quantum-finance.ru"]
+  }
+}
+
+docs {
+  {
+    "data": {
+      "success": true,
+      "message": "Verification code sent successfully"
+    }
+  }
+}

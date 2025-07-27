@@ -6,7 +6,7 @@ import { initializeDatabase } from "./config/database.config";
 import { errorHandler } from "./middleware/error.middleware";
 import { logger } from "./utils/logger";
 import { createPostgresDataProvider } from "remult/postgres";
-import { repo } from "remult";
+import {remult, repo} from "remult";
 
 // Импортируем все сущности и контроллеры явно
 import { User } from "./entities/User.entity";
@@ -65,6 +65,12 @@ async function startServer() {
 
                     // Обновляем время последнего входа
                     await userRepo.update(user, { lastLoginAt: new Date() });
+                    console.log("user",{
+                        id: user.id,
+                        email: user.email,
+                        name: (user.firstName || '') + ' ' + (user.lastName || ''),
+                        roles: [] // Добавьте роли если нужно
+                    })
 
                     return {
                         id: user.id,

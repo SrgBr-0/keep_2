@@ -1,0 +1,35 @@
+meta {
+  name: verifyCode
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/verifyCode
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "args": ["s.brykov@quantum-finance.ru", "109963"]
+  }
+}
+
+docs {
+  {
+    "data": {
+      "token": "6abc11390c1835ccd454e47f29064ae6f132ebab6619620de0bf3b0c416dff84",
+      "userId": "8b8e6def-8334-4612-a44c-87b789d0b4d7",
+      "user": {
+        "id": "8b8e6def-8334-4612-a44c-87b789d0b4d7",
+        "email": "s.brykov@quantum-finance.ru",
+        "isVerified": true
+      }
+    }
+  }
+}
