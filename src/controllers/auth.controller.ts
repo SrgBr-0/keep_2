@@ -1,4 +1,4 @@
-import { BackendMethod, remult } from "remult";
+import {Allow, BackendMethod, Remult, remult} from "remult";
 import { sendVerificationCode, verifyCode, changePassword, logoutAll } from "../shared/auth/auth.helpers";
 
 export class AuthController {
@@ -28,10 +28,10 @@ export class AuthController {
         }
     }
 
-    @BackendMethod({ allowed: "signedIn" })
-    static async changePassword(newPassword: string) {
+    @BackendMethod({ allowed: Allow.authenticated })
+    static async changePassword(newPassword: string, rem: Remult) {
         console.log('🔒 changePassword called');
-        const userId = remult.user?.id;
+        const userId = rem.user?.id;
         if (!userId) {
             console.error('❌ changePassword: User not authenticated');
             throw new Error("User not authenticated");
@@ -46,7 +46,7 @@ export class AuthController {
         }
     }
 
-    @BackendMethod({ allowed: "signedIn" })
+    @BackendMethod({ allowed: Allow.authenticated })
     static async logoutAll() {
         console.log('🚪 logoutAll called');
         const userId = remult.user?.id;

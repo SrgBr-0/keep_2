@@ -1,0 +1,31 @@
+meta {
+  name: logoutAll
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/logoutAll
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 83503dc69a9db7d9acf2405804c4f3feaaba2371f2d40b395a90eaafbf28558c
+}
+
+body:json {
+  {
+    "args": []
+  }
+}
+
+docs {
+  {
+    "data": {
+      "success": true,
+      "message": "Logged out from all devices"
+    }
+  }
+}

@@ -48,10 +48,12 @@ async function startServer() {
 
                 try {
                     const tokenRepo = repo(AuthToken);
+                    console.log(tokenRepo)
                     const authToken = await tokenRepo.findFirst({
                         token,
                         isRevoked: false
                     });
+                    console.log(authToken)
 
                     if (!authToken) return undefined;
 
