@@ -32,12 +32,15 @@ export async function sendVerificationCode(email: string, userAgent?: string) {
 
     // Проверяем лимит запросов (не более 3 кодов за час)
     const oneHourAgo = new Date(Date.now() - 60 * 60000);
-    const recentCodes = await codeRepo.count({
-        userId: user.id,
-        createdAt: { $gte: oneHourAgo }
+    const recentCodes = await codeRepo.find({
+        where: {
+            userId: user.id
+        }
     });
 
-    if (recentCodes >= 3) {
+    const recentCodesCount = recentCodes.filter(c => c.createdAt > oneHourAgo).length;
+
+    if (recentCodesCount >= 3) {
         throw "Too many verification attempts. Please try again later.";
     }
 
@@ -45,7 +48,16 @@ export async function sendVerificationCode(email: string, userAgent?: string) {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Удаляем старые неиспользованные коды
-    await codeRepo.delete({ userId: user.id, isUsed: false });
+    const oldCodes = await codeRepo.find({
+        where: {
+            userId: user.id,
+            isUsed: false
+        }
+    });
+
+    for (const oldCode of oldCodes) {
+        await codeRepo.delete(oldCode);
+    }
 
     // Сохраняем новый код
     await codeRepo.insert({
@@ -87,24 +99,16 @@ export async function verifyCode(email: string, code: string) {
     const verificationCode = await codeRepo.findFirst({
         userId: user.id,
         code,
-        isUsed: false,
-        expiresAt: { $gt: new Date() }
+        isUsed: false
     });
 
     if (!verificationCode) {
-        // Ищем код для обновления счетчика попыток
-        const existingCode = await codeRepo.findFirst({
-            userId: user.id,
-            code,
-            isUsed: false
-        });
+        throw "Invalid verification code";
+    }
 
-        if (existingCode) {
-            await codeRepo.update(existingCode, {
-                attempts: existingCode.attempts + 1
-            });
-        }
-        throw "Invalid or expired verification code";
+    // Проверяем не истек ли код
+    if (verificationCode.expiresAt < new Date()) {
+        throw "Verification code expired";
     }
 
     // Проверяем количество попыток
@@ -163,35 +167,51 @@ export async function changePassword(userId: string, newPassword: string) {
 
     // Обновляем пароль
     const passwordHash = await bcrypt.hash(newPassword, parseInt(process.env.BCRYPT_ROUNDS || '12'));
-    await userRepo.update({ id: userId }, { passwordHash });
+    const user = await userRepo.findId(userId);
+    if (user) {
+        await userRepo.update(user, { passwordHash });
+    }
 
-    // Отзываем все активные токены кроме текущего
-    await tokenRepo.update(
-        { userId, isRevoked: false, expiresAt: { $gt: new Date() } },
-        { isRevoked: true, updatedAt: new Date() }
-    );
+    // Отзываем все активные токены
+    const activeTokens = await tokenRepo.find({
+        where: {
+            userId,
+            isRevoked: false
+        }
+    });
+
+    for (const token of activeTokens) {
+        if (token.expiresAt > new Date()) {
+            await tokenRepo.update(token, {
+                isRevoked: true,
+                updatedAt: new Date()
+            });
+        }
+    }
 
     return { success: true, message: "Password changed successfully" };
-}
-
-export async function logout(token: string) {
-    const tokenRepo = repo(AuthToken);
-
-    await tokenRepo.update(
-        { token, isRevoked: false },
-        { isRevoked: true, updatedAt: new Date() }
-    );
-
-    return { success: true, message: "Logged out successfully" };
 }
 
 export async function logoutAll(userId: string) {
     const tokenRepo = repo(AuthToken);
 
-    await tokenRepo.update(
-        { userId, isRevoked: false, expiresAt: { $gt: new Date() } },
-        { isRevoked: true, updatedAt: new Date() }
-    );
+    // Находим все активные токены пользователя
+    const activeTokens = await tokenRepo.find({
+        where: {
+            userId,
+            isRevoked: false
+        }
+    });
+
+    // Отзываем каждый активный токен, который еще не истек
+    for (const token of activeTokens) {
+        if (token.expiresAt > new Date()) {
+            await tokenRepo.update(token, {
+                isRevoked: true,
+                updatedAt: new Date()
+            });
+        }
+    }
 
     return { success: true, message: "Logged out from all devices" };
 }

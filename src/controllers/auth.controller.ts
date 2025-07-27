@@ -1,35 +1,66 @@
 import { BackendMethod, remult } from "remult";
-import { sendVerificationCode, verifyCode, changePassword, logout, logoutAll } from "../shared/auth/auth.helpers";
+import { sendVerificationCode, verifyCode, changePassword, logoutAll } from "../shared/auth/auth.helpers";
 
 export class AuthController {
     @BackendMethod({ allowed: true })
     static async sendCode(email: string, userAgent?: string) {
-        return await sendVerificationCode(email, userAgent);
+        console.log('📧 sendCode called with:', { email, userAgent });
+        try {
+            const result = await sendVerificationCode(email, userAgent);
+            console.log('✅ sendCode success:', result);
+            return result;
+        } catch (error) {
+            console.error('❌ sendCode error:', error);
+            throw error;
+        }
     }
 
     @BackendMethod({ allowed: true })
     static async verifyCode(email: string, code: string) {
-        return await verifyCode(email, code);
+        console.log('🔑 verifyCode called with:', { email, code: code.replace(/./g, '*') });
+        try {
+            const result = await verifyCode(email, code);
+            console.log('✅ verifyCode success');
+            return result;
+        } catch (error) {
+            console.error('❌ verifyCode error:', error);
+            throw error;
+        }
     }
 
     @BackendMethod({ allowed: "signedIn" })
     static async changePassword(newPassword: string) {
+        console.log('🔒 changePassword called');
         const userId = remult.user?.id;
-        if (!userId) throw new Error("User not authenticated");
-        return await changePassword(userId, newPassword);
-    }
-
-    @BackendMethod({ allowed: "signedIn" })
-    static async logout() {
-        const token = remult.context.request?.headers?.authorization?.replace('Bearer ', '');
-        if (!token) throw "No token provided";
-        return await logout(token);
+        if (!userId) {
+            console.error('❌ changePassword: User not authenticated');
+            throw new Error("User not authenticated");
+        }
+        try {
+            const result = await changePassword(userId, newPassword);
+            console.log('✅ changePassword success');
+            return result;
+        } catch (error) {
+            console.error('❌ changePassword error:', error);
+            throw error;
+        }
     }
 
     @BackendMethod({ allowed: "signedIn" })
     static async logoutAll() {
+        console.log('🚪 logoutAll called');
         const userId = remult.user?.id;
-        if (!userId) throw new Error("User not authenticated");
-        return await logoutAll(userId);
+        if (!userId) {
+            console.error('❌ logoutAll: User not authenticated');
+            throw new Error("User not authenticated");
+        }
+        try {
+            const result = await logoutAll(userId);
+            console.log('✅ logoutAll success');
+            return result;
+        } catch (error) {
+            console.error('❌ logoutAll error:', error);
+            throw error;
+        }
     }
 }
