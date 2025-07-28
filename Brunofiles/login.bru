@@ -1,11 +1,11 @@
 meta {
-  name: verifyCode
+  name: login
   type: http
-  seq: 2
+  seq: 6
 }
 
 post {
-  url: http://localhost:3000/api/verifyCode
+  url: http://localhost:3000/api/login
   body: json
   auth: none
 }
@@ -16,7 +16,11 @@ headers {
 
 body:json {
   {
-    "args": ["s.brykov@quantum-finance.ru", "824331"]
+    "args": [
+      "s.brykov@quantum-finance.ru",
+      "",
+      "Newpass123!"
+    ]
   }
 }
 
@@ -31,5 +35,22 @@ docs {
         "isVerified": true
       }
     }
+  }
+  
+  на
+  {
+    "args": [
+      "s.brykov@quantum-finance.ru",
+      "",
+      "Newpass1!"
+    ]
+  }
+  или на 
+  {
+    "args": [
+      "s.brykov@quantum-finance.ru",
+      "805217",
+      ""
+    ]
   }
 }
