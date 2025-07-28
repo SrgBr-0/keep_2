@@ -53,7 +53,7 @@ export class AuthController {
     }
 
     @BackendMethod({ allowed: Allow.authenticated })
-    static async changePassword(newPassword: string, rem: Remult) {
+    static async changePassword({ newPassword }: { newPassword: string }, rem: Remult) {
         console.log('🔒 changePassword called');
         const userId = rem.user?.id;
         if (!userId) {

@@ -52,7 +52,7 @@ async function startServer() {
                         token,
                         isRevoked: false
                     });
-console.log(token, authToken)
+
                     if (!authToken) return undefined;
 
                     // Проверяем что токен не истек
