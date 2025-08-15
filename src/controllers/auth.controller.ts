@@ -3,7 +3,7 @@ import { sendVerificationCode, loginWithCode, loginWithPassword, changePassword,
 
 export class AuthController {
     @BackendMethod({ allowed: true })
-    static async sendCode(email: string, userAgent?: string) {
+    static async sendCode({ email, userAgent }: { email: string, userAgent?: string }) {
         console.log('📧 sendCode called with:', { email, userAgent });
         try {
             const result = await sendVerificationCode(email, userAgent);
@@ -16,7 +16,7 @@ export class AuthController {
     }
 
     @BackendMethod({ allowed: true })
-    static async login(email: string, code?: string, password?: string ) {
+    static async login({email, code, password}:{ email: string, code?: string, password?: string}) {
         console.log('🔑 login called with:', {
             email: email,
             hasCode: !!code,
