@@ -22,10 +22,39 @@ body:json {
 }
 
 docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": []
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
   {
     "data": {
       "success": true,
       "message": "Logged out from all devices"
     }
   }
+  ```
+  
+  ## Код 400
+  Объект ошибки:
+  ```
+  {
+    "message": "Forbidden"
+  }
+  ```
+  
+  
 }

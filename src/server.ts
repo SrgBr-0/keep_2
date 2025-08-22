@@ -14,6 +14,21 @@ import { VerificationCode } from "./entities/VerificationCode.entity";
 import { AuthToken } from "./entities/AuthToken.entity";
 import { AuthController } from "./controllers/auth.controller";
 
+import { UpdateMessage } from "./entities/UpdateMessage.entity";
+import { Contact } from "./entities/Contact.entity";
+import { Project } from "./entities/Project.entity";
+import { AppContext } from "./entities/AppContext.entity";
+import { Section } from "./entities/Section.entity";
+import { Card } from "./entities/Card.entity";
+import { Template } from "./entities/Template.entity";
+import { Notification } from "./entities/Notification.entity";
+import { ContextUser } from "./entities/ContextUser.entity";
+
+import { UpdatesController } from "./controllers/updates.controller";
+import { ContextsController } from "./controllers/contexts.controller";
+import { ProjectsController } from "./controllers/projects.controller";
+import { ContactsController } from "./controllers/contacts.controller";
+
 async function startServer() {
     try {
         // Инициализируем базу данных
@@ -33,8 +48,14 @@ async function startServer() {
 
         // Создаем Remult API с настройкой аутентификации
         const api = remultExpress({
-            entities: [User, VerificationCode, AuthToken],
-            controllers: [AuthController],
+            entities: [
+                User, VerificationCode, AuthToken,
+                UpdateMessage, Contact, Project, AppContext, Section, Card, Template, Notification, ContextUser
+            ],
+            controllers: [
+                AuthController,
+                UpdatesController, ContextsController, ProjectsController, ContactsController
+            ],
             dataProvider: createPostgresDataProvider({
                 connectionString: process.env.DATABASE_URL!,
                 schema: 'auth'

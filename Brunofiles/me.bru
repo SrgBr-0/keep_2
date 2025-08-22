@@ -1,27 +1,23 @@
 meta {
-  name: changePassword
+  name: me
   type: http
-  seq: 3
+  seq: 6
 }
 
 post {
-  url: http://localhost:3000/api/changePassword
+  url: http://localhost:3000/api/me
   body: json
   auth: none
 }
 
 headers {
   Content-Type: application/json
-  Authorization: Bearer 83ea5e3be1ba9bbf7729ad95bb465f1aecd42b0b312b14f509cf1e9cf2997910
+  Authorization: Bearer 3b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
 }
 
 body:json {
   {
-    "args": [
-      {
-        "newPassword": "MyNewSecurePassword123!"
-      }
-    ]
+    "args": []
   }
 }
 
@@ -30,11 +26,7 @@ docs {
   POST запрос с Body формата:
   ```
   {
-    "args": [
-      {
-        "newPassword": "MyNewSecurePassword123!"
-      }
-    ]
+    "args": []
   }
   ```
   и Headers формата:
@@ -50,8 +42,13 @@ docs {
   ```
   {
     "data": {
-      "success": true,
-      "message": "Password changed successfully"
+      "user": {
+        "id": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+        "email": "s.brykov@quantum-finance.ru",
+        "name": " ",
+        "roles": []
+      },
+      "authenticated": true
     }
   }
   ```

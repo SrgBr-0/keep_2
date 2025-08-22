@@ -27,6 +27,35 @@ body:json {
 }
 
 docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": [
+      "s.brykov@quantum-finance.ru",
+      "",
+      "Newpass1!"
+    ]
+  }
+  или 
+  {
+    "args": [
+      "s.brykov@quantum-finance.ru",
+      "805217",
+      ""
+    ]
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
   {
     "data": {
       "token": "6abc11390c1835ccd454e47f29064ae6f132ebab6619620de0bf3b0c416dff84",
@@ -38,21 +67,16 @@ docs {
       }
     }
   }
+  ```
   
-  на
+  ## Код 400
+  Объект ошибки:
+  ```
   {
-    "args": [
-      "s.brykov@quantum-finance.ru",
-      "",
-      "Newpass1!"
-    ]
+    "message": "Invalid email or password",
+    "stack": "Error: Invalid email or password\n..."
   }
-  или на 
-  {
-    "args": [
-      "s.brykov@quantum-finance.ru",
-      "805217",
-      ""
-    ]
-  }
+  ```
+  
+  
 }
