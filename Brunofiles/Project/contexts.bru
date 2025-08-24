@@ -1,11 +1,11 @@
 meta {
-  name: unpin
+  name: contexts
   type: http
-  seq: 3
+  seq: 7
 }
 
 post {
-  url: http://localhost:3000/api/unpin
+  url: http://localhost:3000/api/contexts
   body: json
   auth: none
 }
@@ -19,7 +19,7 @@ body:json {
   {
     "args": [
       {
-        "contextId": "8d0da451-5831-4ec2-9c85-d0c4b034b412"
+        "projectId": "702ee6a1-f5ed-434b-bd92-097ca732aa8c"
       }
     ]
   }
@@ -30,7 +30,11 @@ docs {
   POST запрос с Body формата:
   ```
   {
-    "args": ["context-id"]
+    "args": [
+      {
+        "projectId": "702ee6a1-f5ed-434b-bd92-097ca732aa8c"
+      }
+    ]
   }
   ```
   и Headers формата:
@@ -45,14 +49,16 @@ docs {
   В Response возвращаетя:
   ```
   {
-    "data": {
-      "ownerId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
-      "name": "Test Context test",
-      "isInbox": false,
-      "pinned": false,
-      "id": "8d0da451-5831-4ec2-9c85-d0c4b034b412",
-      "projectId": "6c3eedee-6d16-42f9-b31b-83840eadb391"
-    }
+    "data": [
+      {
+        "ownerId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+        "name": "Test Context",
+        "isInbox": false,
+        "pinned": false,
+        "id": "d1484d83-46ec-4bd1-98f8-dbe0cf182493",
+        "projectId": "702ee6a1-f5ed-434b-bd92-097ca732aa8c"
+      }
+    ]
   }
   ```
   

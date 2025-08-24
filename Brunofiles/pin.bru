@@ -1,7 +1,7 @@
 meta {
   name: pin
   type: http
-  seq: 3
+  seq: 2
 }
 
 post {
@@ -12,14 +12,14 @@ post {
 
 headers {
   Content-Type: application/json
-  Authorization: Bearer 3b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+  Authorization: Bearer da17362cb1a8de878ff1b4c30a2d4c2959421fe784d556813a622795c74f8123
 }
 
 body:json {
   {
     "args": [
       {
-        "contextId": "trnyn20boicmfrnq95mer3ku"
+        "contextId": "8d0da451-5831-4ec2-9c85-d0c4b034b412"
       }
     ]
   }
@@ -30,7 +30,11 @@ docs {
   POST запрос с Body формата:
   ```
   {
-    "args": ["context-id"]
+    "args": [
+      {
+        "contextId": "8d0da451-5831-4ec2-9c85-d0c4b034b412"
+      }
+    ]
   }
   ```
   и Headers формата:
@@ -46,13 +50,12 @@ docs {
   ```
   {
     "data": {
-      "user": {
-        "id": "09b065f6-bc20-4815-83af-9f33b9abdf40",
-        "email": "s.brykov@quantum-finance.ru",
-        "name": " ",
-        "roles": []
-      },
-      "authenticated": true
+      "ownerId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+      "name": "Test Context test",
+      "isInbox": false,
+      "pinned": true,
+      "id": "8d0da451-5831-4ec2-9c85-d0c4b034b412",
+      "projectId": "6c3eedee-6d16-42f9-b31b-83840eadb391"
     }
   }
   ```

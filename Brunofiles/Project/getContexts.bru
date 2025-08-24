@@ -1,0 +1,53 @@
+meta {
+  name: getContexts
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3000/api/contexts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer da17362cb1a8de878ff1b4c30a2d4c2959421fe784d556813a622795c74f8123
+}
+
+body:json {
+  {
+    "args": [
+      "6c3eedee-6d16-42f9-b31b-83840eadb391"
+    ]
+  }
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": [
+      "project-id"
+    ]
+  }
+  ```
+  
+  # Возвращает все контексты проекта
+  ## Код 200
+  ```
+  {
+    "data": [
+      {
+        "id": "803c1b2b-1c9a-4548-a95f-0d8b7f96494d",
+        "ownerId": "12345",
+        "name": "Folder",
+        "projectId": "ce1fcebb-857a-4bec-88e1-51eb1f41022a",
+        "isInbox": false,
+        "pinned": false
+      }
+    ]
+  }
+  ```
+}

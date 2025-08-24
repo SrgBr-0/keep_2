@@ -1,0 +1,76 @@
+meta {
+  name: update_messagesBatch
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/postBatch
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer da17362cb1a8de878ff1b4c30a2d4c2959421fe784d556813a622795c74f8123
+}
+
+body:json {
+  {
+    "args": [
+      [
+        {
+          "id": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+          "type": "CardContent", 
+          "data": {
+            "cardId": "i8m6oy4h0w1u01sofj6u0htn",
+            "content": {
+              "title": "Updated via batch",
+              "description": "This was updated"
+            }
+          },
+          "contextId": "b49c4e0a-3c69-4092-bb9e-c3457e6109e2"
+        }
+      ]
+    ]
+  }
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": [
+      [
+        {
+          "id": "client_generated_id_21_chars",
+          "type": "CardContent|CardInfo|CardSettings|SectionInfo|ContextInfo",
+          "data": { ... },
+          "contextId": "optional_context_id"
+        }
+      ]
+    ]
+  }
+  ```
+  
+  Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает
+  
+  ## Код 200
+  В Response возвращается:
+  ```
+  {
+    "data": {
+      "results": [
+        { "id": "msg001_nanoid21chars", "status": "ok" }
+      ]
+    }
+  }
+  ```
+}

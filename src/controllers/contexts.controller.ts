@@ -5,7 +5,7 @@ import { Card } from "../entities/Card.entity";
 
 export class ContextsController {
     @BackendMethod({ allowed: true })
-    static async pin(contextId: string) {
+    static async pin({contextId}: {contextId: string}) {
         const u = remult.user;
         const cRepo = repo(AppContext);
         const ctx = await cRepo.findId(contextId);
@@ -15,7 +15,7 @@ export class ContextsController {
     }
 
     @BackendMethod({ allowed: true })
-    static async unpin(contextId: string) {
+    static async unpin({contextId}: {contextId: string}) {
         const u = remult.user;
         const cRepo = repo(AppContext);
         const ctx = await cRepo.findId(contextId);
@@ -26,7 +26,7 @@ export class ContextsController {
 
     // Inbox: создать карточку без секций
     @BackendMethod({ allowed: true })
-    static async createInboxCard(inboxContextId: string, content: any, info?: any) {
+    static async createInboxCard({ inboxContextId, content, info }: { inboxContextId: string, content: any, info?: any}) {
         const u = remult.user;
         if (!u?.id) throw new Error("unauthorized");
         const cRepo = repo(Card);

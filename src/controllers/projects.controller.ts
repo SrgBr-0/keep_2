@@ -1,17 +1,16 @@
 import { BackendMethod, remult, repo } from "remult";
-import { Project } from "../entities/Project.entity";
 import { AppContext } from "../entities/AppContext.entity";
 
 export class ProjectsController {
     @BackendMethod({ allowed: true })
-    static async contexts(projectId: string) {
+    static async contexts({projectId}: {projectId: string}) {
         const u = remult.user;
         if (!u?.id) throw new Error("unauthorized");
         return await repo(AppContext).find({ where: { projectId, ownerId: u.id } });
     }
 
     @BackendMethod({ allowed: true })
-    static async attachContext(projectId: string, contextId: string) {
+    static async attachContext({ projectId, contextId }: { projectId: string, contextId: string}) {
         const u = remult.user;
         if (!u?.id) throw new Error("unauthorized");
         const cRepo = repo(AppContext);

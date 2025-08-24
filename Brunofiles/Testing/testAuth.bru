@@ -1,0 +1,21 @@
+meta {
+  name: testAuth
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/admin
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  # Тестирование доступности админ панели
+  # Принимает GET запрос без авторизации
+  # Возвращает HTML страницу с админ панелью (только в development)
+}

@@ -1,0 +1,26 @@
+meta {
+  name: getCardsBySection
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:3000/api/cards?sectionId=498cc81d-a6bb-42c3-8718-53c6c9d45c7b
+  body: none
+  auth: none
+}
+
+params:query {
+  sectionId: 498cc81d-a6bb-42c3-8718-53c6c9d45c7b
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer bb3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+docs {
+  # Получение карточек по секции
+  # Принимает GET запрос с параметром sectionId
+  # Возвращает массив карточек из указанной секции
+}

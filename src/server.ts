@@ -41,11 +41,6 @@ async function startServer() {
         app.use(cors());
         app.use(express.json());
 
-        // Логируем что мы регистрируем
-        console.log('📋 Registering entities and controllers...');
-        console.log('- Entities:', ['User', 'VerificationCode', 'AuthToken']);
-        console.log('- Controllers:', ['AuthController']);
-
         // Создаем Remult API с настройкой аутентификации
         const api = remultExpress({
             entities: [
@@ -102,46 +97,12 @@ async function startServer() {
 
         app.use(api);
 
-        // Health check endpoint
-        // app.get('/health', (req, res) => {
-        //     res.json({
-        //         status: 'ok',
-        //         timestamp: new Date().toISOString(),
-        //         environment: process.env.NODE_ENV,
-        //         endpoints: [
-        //             'POST /api/sendCode',
-        //             'POST /api/verifyCode',
-        //             'POST /api/changePassword',
-        //             'POST /api/logoutAll',
-        //             'GET /api/admin'
-        //         ]
-        //     });
-        // });
-
-        // Debug endpoint для проверки доступных методов
-        // app.get('/debug/endpoints', (req, res) => {
-        //     res.json({
-        //         message: 'Available backend methods',
-        //         methods: [
-        //             'AuthController.sendCode',
-        //             'AuthController.verifyCode',
-        //             'AuthController.changePassword',
-        //             'AuthController.logoutAll'
-        //         ],
-        //         note: 'Use POST requests to /api/{methodName}',
-        //         auth: 'Use Authorization: Bearer {token} for protected endpoints'
-        //     });
-        // });
-
         // Error handling
         app.use(errorHandler);
 
         app.listen(port, () => {
             logger.info(`🚀 Server started on port ${port}`);
             logger.info(`📊 Admin panel: http://localhost:${port}/api/admin`);
-            logger.info(`🏥 Health check: http://localhost:${port}/health`);
-            logger.info(`🔍 Debug endpoints: http://localhost:${port}/debug/endpoints`);
-            logger.info(`👤 Auth test: http://localhost:${port}/api/me`);
             logger.info(`🔧 Environment: ${process.env.NODE_ENV}`);
         });
 

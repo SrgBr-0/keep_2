@@ -1,0 +1,57 @@
+meta {
+  name: sharedContexts
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/sharedContextsWith
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer da17362cb1a8de878ff1b4c30a2d4c2959421fe784d556813a622795c74f8123
+}
+
+body:json {
+  {
+    "args": [
+      {
+        "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40"
+      }
+    ]
+  }
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": [
+      {
+        "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40"
+      }
+    ]
+  }
+  ```
+  
+  # Возвращает контексты, которыми пользователь делится с текущим пользователем
+  ## Код 200
+  ```
+  {
+    "data": [
+      {
+        "ownerId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+        "name": "Test Context",
+        "isInbox": false,
+        "pinned": false,
+        "id": "d1484d83-46ec-4bd1-98f8-dbe0cf182493",
+        "projectId": "702ee6a1-f5ed-434b-bd92-097ca732aa8c"
+      }
+    ]
+  }
+  ```
+}

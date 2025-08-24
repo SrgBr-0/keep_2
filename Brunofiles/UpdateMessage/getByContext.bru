@@ -1,0 +1,61 @@
+meta {
+  name: getByContext
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3000/api/getByContext
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer da17362cb1a8de878ff1b4c30a2d4c2959421fe784d556813a622795c74f8123
+}
+
+body:json {
+  {
+    "args": [
+      {
+        "contextId": "b49c4e0a-3c69-4092-bb9e-c3457e6109e2",
+        "since": "2025-08-24T10:00:00.000Z"
+      }
+    ]
+  }
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": [
+      {
+        "contextId": "b49c4e0a-3c69-4092-bb9e-c3457e6109e2",
+        "since": "2025-08-24T10:00:00.000Z" // optional since parameter
+      }
+    ]
+  }
+  ```
+  
+  # Возвращает
+  
+  ## Код 200
+  ```
+  {
+    "data": [
+      {
+        "id": "c1bbf0d2-70c0-44f2-9ea2-fe35517cf7fb",
+        "clientId": "msg001_nanoid21chars",
+        "serverTime": "2025-08-24T12:36:45.333Z",
+        "type": "CardContent",
+        "data": {},
+        "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+        "contextId": "ctx123"
+      }
+    ]
+  }
+  ```
+}

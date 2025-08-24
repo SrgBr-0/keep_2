@@ -85,7 +85,7 @@ export class UpdatesController {
      * Получить обновления по контексту (срез за период).
      */
     @BackendMethod({ allowed: true })
-    static async getByContext(contextId: string, since?: Date) {
+    static async getByContext({ contextId, since }: { contextId: string, since?: Date}) {
         const u = remult.user;
         if (!u?.id) throw new Error("unauthorized");
         if (!contextId) throw new Error("contextId required");
