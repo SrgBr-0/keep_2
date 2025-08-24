@@ -1,0 +1,62 @@
+meta {
+  name: contactsPost
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/contacts
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 4b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+body:json {
+  {
+    "args": [
+      {
+        "email": "friend@example.com",
+        "name": "Friend Name"
+      }
+    ]
+  }
+  
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": [
+      {
+        "email": "friend@example.com",
+        "name": "Friend Name"
+      }
+    ]
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 201
+  В Response возвращаетя:
+  ```
+  {
+    "id": "4214071f-fb4b-49e1-8dd4-0de63b93e55e",
+    "ownerId": "",
+    "email": "",
+    "name": null
+  }
+  ```
+  
+}

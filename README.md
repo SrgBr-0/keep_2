@@ -1,6 +1,4 @@
-# Remult Authentication System
-
-Полнофункциональная система аутентификации на основе Remult framework с email-верификацией.
+Полнофункциональная система на основе Remult framework с email-верификацией.
 
 ## 🚀 Возможности
 
@@ -77,188 +75,11 @@ npm run migrate
 npm run dev
 ```
 
-## 🌐 API Endpoints
-
-База URL: `http://localhost:3000/api`
-
-### 🔓 Публичные методы (не требуют авторизации)
-
-#### 1. Отправка кода верификации
-```http
-POST /api/AuthController/sendCode
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "userAgent": "Mozilla/5.0..." // опционально
-}
-```
-
-**Ответ:**
-```json
-{
-  "success": true,
-  "message": "Verification code sent successfully"
-}
-```
-
-**Лимиты:** Не более 3 кодов в час на email
-
----
-
-#### 2. Верификация кода и получение токена
-```http
-POST /api/AuthController/verifyCode
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "code": "123456"
-}
-```
-
-**Ответ:**
-```json
-{
-  "token": "abc123...",
-  "userId": "uuid-here",
-  "user": {
-    "id": "uuid-here",
-    "email": "user@example.com",
-    "isVerified": true
-  }
-}
-```
-
-**Ошибки:**
-- `Invalid or expired verification code` - неверный или истекший код
-- `Too many failed attempts` - превышен лимит попыток (3 раза)
-
-### 🔒 Защищенные методы (требуют авторизации)
-
-Добавьте заголовок: `Authorization: Bearer YOUR_TOKEN`
-
-#### 3. Смена пароля
-```http
-POST /api/AuthController/changePassword
-Authorization: Bearer YOUR_TOKEN
-Content-Type: application/json
-
-{
-  "newPassword": "NewSecurePass123!"
-}
-```
-
-**Требования к паролю:**
-- Минимум 8 символов
-- Заглавные и строчные буквы
-- Цифры и спецсимволы
-
-**Ответ:**
-```json
-{
-  "success": true,
-  "message": "Password changed successfully"
-}
-```
-
----
-
-#### 4. Выход из системы (текущий токен)
-```http
-POST /api/AuthController/logout
-Authorization: Bearer YOUR_TOKEN
-```
-
-**Ответ:**
-```json
-{
-  "success": true,
-  "message": "Logged out successfully"
-}
-```
-
----
-
-#### 5. Выход со всех устройств
-```http
-POST /api/AuthController/logoutAll
-Authorization: Bearer YOUR_TOKEN
-```
-
-**Ответ:**
-```json
-{
-  "success": true,
-  "message": "Logged out from all devices"
-}
-```
-
-## 🧪 Тестирование с curl
-
-### 1. Отправка кода верификации
-```bash
-curl -X POST http://localhost:3000/api/AuthController/sendCode \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test@example.com"}'
-```
-
-### 2. Верификация кода (замените код на реальный из email)
-```bash
-curl -X POST http://localhost:3000/api/AuthController/verifyCode \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test@example.com", "code": "123456"}'
-```
-
-### 3. Смена пароля (замените TOKEN)
-```bash
-curl -X POST http://localhost:3000/api/AuthController/changePassword \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"newPassword": "NewPassword123!"}'
-```
-
-### 4. Выход из системы
-```bash
-curl -X POST http://localhost:3000/api/AuthController/logout \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-## 🔧 Дополнительные endpoints
-
-### Health Check
-```http
-GET /health
-```
-
-**Ответ:**
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-01-15T10:30:00.000Z",
-  "environment": "development"
-}
-```
-
 ### Admin панель
 ```
 GET /api/admin
 ```
 Доступна только в режиме разработки для просмотра данных.
-
-## 📊 Структура проекта
-
-```
-src/
-├── entities/           # Сущности БД (User, VerificationCode, AuthToken)
-├── controllers/        # API контроллеры
-├── shared/auth/        # Бизнес-логика аутентификации
-├── config/            # Конфигурация БД
-├── middleware/        # Express middleware
-├── utils/             # Утилиты (логгер)
-├── scripts/           # Скрипты миграции и тестирования
-└── tests/             # Тесты
-```
 
 ## 🗂️ Необходимые файлы
 
@@ -269,10 +90,6 @@ src/
 - `Dockerfile` - для продакшн сборки
 - `docker-compose.yml` - для локальной разработки
 - `.env` - переменные окружения
-
-**Файлы которые можно удалить:**
-- `src/config/database.ts` - дублирует database.config.ts
-- `.gitattributes` - не критичен для работы
 
 ## 🚀 Команды разработки
 

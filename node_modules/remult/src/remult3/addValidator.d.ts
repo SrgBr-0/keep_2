@@ -1,0 +1,2 @@
+import type { FieldOptions } from '../column-interfaces.js';
+export declare function addValidator<entityType, valueType>(validators: FieldOptions<entityType, valueType>['validate'], newValidator: FieldOptions<entityType, valueType>['validate'], atStart?: boolean): import("../column-interfaces.js").FieldValidator<entityType, valueType> | import("../column-interfaces.js").FieldValidator<entityType, valueType>[] | undefined;

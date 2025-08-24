@@ -1,0 +1,69 @@
+meta {
+  name: unpin
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/pin
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 3b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+body:json {
+  {
+    "args": [
+      {
+        "contextId": "trnyn20boicmfrnq95mer3ku"
+      }
+    ]
+  }
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": ["context-id"]
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  {
+    "data": {
+      "user": {
+        "id": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+        "email": "s.brykov@quantum-finance.ru",
+        "name": " ",
+        "roles": []
+      },
+      "authenticated": true
+    }
+  }
+  ```
+  
+  ## Код 400
+  Объект ошибки:
+  ```
+  {
+    "message": "forbidden"
+  }
+  ```
+  
+  
+}

@@ -1,0 +1,178 @@
+import { dbNamesOf, shouldCreateEntity, shouldNotCreateField, } from '../src/filter/filter-consumer-bridge-to-sql-request.js';
+import { isAutoIncrement } from '../src/remult3/RepositoryImplementation.js';
+import { ValueConverters } from '../src/valueConverters.js';
+export function postgresColumnSyntax(x, dbName) {
+    let result = dbName;
+    if (x.valueType == Number) {
+        if (!x.valueConverter.fieldTypeInDb)
+            result += ' numeric' + (x.allowNull ? '' : ' default 0 not null');
+        else
+            result +=
+                ' ' +
+                    x.valueConverter.fieldTypeInDb +
+                    (x.allowNull ? '' : ' default 0 not null');
+    }
+    else if (x.valueType == Date) {
+        if (!x.valueConverter.fieldTypeInDb)
+            if (x.valueConverter == ValueConverters.DateOnly)
+                result += ' date';
+            else
+                result += ' timestamptz';
+        else
+            result += ' ' + x.valueConverter.fieldTypeInDb;
+    }
+    else if (x.valueType == Boolean)
+        result += ' boolean' + (x.allowNull ? '' : ' default false not null');
+    else if (x.valueConverter.fieldTypeInDb) {
+        result += ' ' + x.valueConverter.fieldTypeInDb;
+        if (!x.allowNull && x.valueConverter.fieldTypeInDb == 'integer') {
+            result += ' default 0 not null';
+        }
+    }
+    else
+        result += ' varchar' + (x.allowNull ? '' : " default '' not null");
+    return result;
+}
+export class PostgresSchemaBuilder {
+    pool;
+    //@internal
+    static logToConsole = true;
+    removeQuotes(s) {
+        if (s.startsWith('"') && s.endsWith('"')) {
+            return s.substring(1, s.length - 1);
+        }
+        return s.toLocaleLowerCase();
+    }
+    whereTableAndSchema(cmd, e) {
+        let table = '';
+        let schema = '';
+        if (this.specifiedSchema) {
+            schema = this.specifiedSchema;
+        }
+        const splited = e.$entityName.split('.');
+        // let's prioritize the specified schema at dbName level
+        if (splited.length > 1) {
+            schema = splited[0];
+            table = splited[1];
+        }
+        else {
+            table = splited[0];
+        }
+        const where = [];
+        if (schema) {
+            where.push(`table_schema=${cmd.param(this.removeQuotes(schema))}`);
+        }
+        where.push(`table_name=${cmd.param(this.removeQuotes(table))}`);
+        return where.join(' AND ');
+    }
+    schemaAndName(e) {
+        if (e.$entityName.includes('.')) {
+            return e.$entityName;
+        }
+        if (this.specifiedSchema) {
+            return `${this.specifiedSchema}.${e.$entityName}`;
+        }
+        return e.$entityName;
+    }
+    schemaOnly(e) {
+        if (e.$entityName.includes('.')) {
+            return e.$entityName.split('.')[0];
+        }
+        if (this.specifiedSchema) {
+            return this.specifiedSchema;
+        }
+        // Should default to `public`
+        return 'public';
+    }
+    async ensureSchema(entities) {
+        for (const entity of entities) {
+            let e = await dbNamesOf(entity, this.pool.wrapIdentifier);
+            try {
+                if (shouldCreateEntity(entity, e)) {
+                    await this.createIfNotExist(entity);
+                    await this.verifyAllColumns(entity);
+                }
+            }
+            catch (err) {
+                console.error('failed verify structure of ' + e.$entityName + ' ', err);
+                throw err;
+            }
+        }
+    }
+    async createIfNotExist(entity) {
+        var c = this.pool.createCommand();
+        let e = await dbNamesOf(entity, this.pool.wrapIdentifier);
+        await c
+            .execute(`SELECT 1 FROM information_Schema.tables WHERE ` +
+            `${this.whereTableAndSchema(c, e)}`)
+            .then(async (r) => {
+            if (r.rows.length == 0) {
+                const sql = await this.createTableScript(entity);
+                if (PostgresSchemaBuilder.logToConsole)
+                    console.info(sql);
+                await this.pool.execute(sql);
+            }
+        });
+    }
+    /* @internal*/
+    async getAddColumnScript(entity, field) {
+        let e = await dbNamesOf(entity, this.pool.wrapIdentifier);
+        return (`ALTER table ${this.schemaAndName(e)} ` +
+            `ADD column ${postgresColumnSyntax(field, e.$dbNameOf(field))}`);
+    }
+    /* @internal*/
+    async createTableScript(entity) {
+        let result = '';
+        let e = await dbNamesOf(entity, this.pool.wrapIdentifier);
+        for (const x of entity.fields) {
+            if (!shouldNotCreateField(x, e) || isAutoIncrement(x)) {
+                if (result.length != 0)
+                    result += ',';
+                result += '\r\n  ';
+                if (isAutoIncrement(x))
+                    result += e.$dbNameOf(x) + ' serial';
+                else {
+                    result += postgresColumnSyntax(x, e.$dbNameOf(x));
+                }
+            }
+        }
+        result += `,\r\n   primary key (${entity.idMetadata.fields
+            .map((f) => e.$dbNameOf(f))
+            .join(',')})`;
+        let sql = `CREATE SCHEMA IF NOT EXISTS ${this.schemaOnly(e)};
+CREATE table ${this.schemaAndName(e)} (${result}\r\n)`;
+        return sql;
+    }
+    async verifyAllColumns(entity) {
+        try {
+            let cmd = this.pool.createCommand();
+            let e = await dbNamesOf(entity, this.pool.wrapIdentifier);
+            let cols = (await cmd.execute(`SELECT column_name FROM information_schema.columns WHERE ` +
+                `${this.whereTableAndSchema(cmd, e)}`)).rows.map((x) => x.column_name.toLocaleLowerCase());
+            for (const col of entity.fields) {
+                if (!shouldNotCreateField(col, e)) {
+                    let colName = e.$dbNameOf(col).toLocaleLowerCase();
+                    if (colName.startsWith('"') && colName.endsWith('"'))
+                        colName = colName.substring(1, colName.length - 1);
+                    if (!cols.includes(colName)) {
+                        let sql = `ALTER table ${this.schemaAndName(e)} ` +
+                            `add column ${postgresColumnSyntax(col, e.$dbNameOf(col))}`;
+                        if (PostgresSchemaBuilder.logToConsole)
+                            console.info(sql);
+                        await this.pool.execute(sql);
+                    }
+                }
+            }
+        }
+        catch (err) {
+            console.error(err);
+        }
+    }
+    specifiedSchema = '';
+    constructor(pool, schema) {
+        this.pool = pool;
+        if (schema) {
+            this.specifiedSchema = schema;
+        }
+    }
+}

@@ -1,0 +1,395 @@
+import { UrlBuilder } from '../../urlBuilder.js';
+import { buildRestDataProvider, retry } from '../buildRestDataProvider.js';
+import { customUrlToken, Filter } from '../filter/filter-interfaces.js';
+import { getRelationFieldInfo } from '../remult3/relationInfoMember.js';
+import { remultStatic } from '../remult-static.js';
+export class RestDataProvider {
+    apiProvider;
+    entityRequested;
+    constructor(apiProvider, entityRequested) {
+        this.apiProvider = apiProvider;
+        this.entityRequested = entityRequested;
+    }
+    getEntityDataProvider(entity) {
+        this.entityRequested?.(entity);
+        return new RestEntityDataProvider(() => {
+            return buildFullUrl(this.apiProvider()?.url, entity.key);
+        }, () => {
+            return buildRestDataProvider(this.apiProvider().httpClient);
+        }, entity);
+    }
+    async transaction(action) {
+        throw new Error('Method not implemented.');
+    }
+    isProxy = true;
+}
+export function buildFullUrl(httpClientUrl, entityKey) {
+    if (httpClientUrl === undefined || httpClientUrl === null)
+        httpClientUrl = '/api';
+    return httpClientUrl + '/' + entityKey;
+}
+//@internal
+export function findOptionsToJson(options, meta) {
+    if (options.include) {
+        let newInclude = {};
+        for (const key in options.include) {
+            if (Object.prototype.hasOwnProperty.call(options.include, key)) {
+                let element = options.include[key];
+                if (typeof element === 'object') {
+                    const rel = getRelationFieldInfo(meta.fields.find(key));
+                    if (rel) {
+                        element = findOptionsToJson(element, rel.toRepo.metadata);
+                    }
+                }
+                newInclude[key] = element;
+            }
+        }
+        options = { ...options, include: newInclude };
+    }
+    if (options.where)
+        options = {
+            ...options,
+            where: Filter.entityFilterToJson(meta, options.where),
+        };
+    if (options.load)
+        options = {
+            ...options,
+            load: options.load(meta.fields).map((y) => y.key),
+        };
+    return options;
+}
+//@internal
+export function findOptionsFromJson(json, meta) {
+    let r = {};
+    for (const key of [
+        'limit',
+        'page',
+        'where',
+        'orderBy',
+        'include',
+    ]) {
+        if (json[key] !== undefined) {
+            if (key === 'where') {
+                r[key] = Filter.entityFilterFromJson(meta, json.where);
+            }
+            else if (key === 'include') {
+                let newInclude = { ...json[key] };
+                for (const key in newInclude) {
+                    if (Object.prototype.hasOwnProperty.call(newInclude, key)) {
+                        let element = newInclude[key];
+                        if (typeof element === 'object') {
+                            const rel = getRelationFieldInfo(meta.fields.find(key));
+                            if (rel) {
+                                element = findOptionsFromJson(element, rel.toRepo.metadata);
+                            }
+                        }
+                        newInclude[key] = element;
+                    }
+                }
+                r[key] = newInclude;
+            }
+            else
+                r[key] = json[key];
+        }
+    }
+    if (json.load) {
+        r.load = (z) => json.load.map((y) => z.find(y));
+    }
+    return r;
+}
+export class RestEntityDataProvider {
+    url;
+    http;
+    entity;
+    constructor(url, http, entity) {
+        this.url = url;
+        this.http = http;
+        this.entity = entity;
+    }
+    query(options, aggregateOptions) {
+        const r = this.buildFindRequest(options);
+        return r
+            .run('query', {
+            aggregate: this.buildAggregateOptions(aggregateOptions),
+        })
+            .then(({ items, aggregates }) => ({
+            items: items.map((x) => this.translateFromJson(x)),
+            aggregates,
+        }));
+    }
+    async groupBy(options) {
+        const { run } = this.buildFindRequest({
+            where: options?.where,
+            limit: options?.limit,
+            page: options?.page,
+        });
+        const body = this.buildAggregateOptions(options);
+        const result = await run('groupBy', Object.keys(body).length > 0 ? body : undefined);
+        if (options?.group)
+            result.forEach((row) => {
+                for (const g of options.group) {
+                    row[g.key] = g.valueConverter.fromJson(row[g.key]);
+                }
+            });
+        return result;
+    }
+    buildAggregateOptions(options) {
+        return {
+            groupBy: options?.group?.map((x) => x.key),
+            sum: options?.sum?.map((x) => x.key),
+            avg: options?.avg?.map((x) => x.key),
+            min: options?.min?.map((x) => x.key),
+            max: options?.max?.map((x) => x.key),
+            distinctCount: options?.distinctCount?.map((x) => x.key),
+            orderBy: options?.orderBy?.map((x) => ({ ...x, field: x.field?.key })),
+        };
+    }
+    translateFromJson(row) {
+        let result = {};
+        for (const col of this.entity.fields) {
+            result[col.key] = col.valueConverter.fromJson(row[col.key]);
+        }
+        return result;
+    }
+    translateToJson(row) {
+        let result = {};
+        for (const col of this.entity.fields) {
+            result[col.key] = col.valueConverter.toJson(row[col.key]);
+        }
+        return result;
+    }
+    async count(where) {
+        const { run } = this.buildFindRequest({ where });
+        return run('count').then((r) => +r.count);
+    }
+    async deleteMany(where) {
+        const { run } = this.buildFindRequest({ where }, 'delete');
+        return run('deleteMany').then((r) => +r.deleted);
+    }
+    async updateMany(where, data) {
+        const { run } = this.buildFindRequest({ where }, 'put');
+        return run('updateMany', this.toJsonOfIncludedKeys(data)).then((r) => +r.updated);
+    }
+    async upsertMany(options) {
+        const { run } = this.buildFindRequest(undefined);
+        return run('upsertMany', options.map((x) => ({
+            where: this.toJsonOfIncludedKeys(x.where),
+            set: x.set !== undefined ? this.toJsonOfIncludedKeys(x.set) : undefined,
+        }))).then((r) => r.map((x) => this.translateFromJson(x)));
+    }
+    find(options) {
+        let { run } = this.buildFindRequest(options);
+        return run().then((x) => x.map((y) => this.translateFromJson(y)));
+    }
+    //@internal
+    buildFindRequest(options, method) {
+        if (!method)
+            method = 'get';
+        let url = new UrlBuilder(this.url());
+        let filterObject;
+        if (options) {
+            if (options.where) {
+                filterObject = options.where.toJson(); //        options.where.__applyToConsumer(new FilterConsumnerBridgeToUrlBuilder(url));
+                if (addFilterToUrlAndReturnTrueIfSuccessful(filterObject, url))
+                    filterObject = undefined;
+            }
+            if (options.orderBy && options.orderBy.Segments) {
+                let sort = '';
+                let order = '';
+                let hasDescending = false;
+                options.orderBy.Segments.forEach((c) => {
+                    if (sort.length > 0) {
+                        sort += ',';
+                        order += ',';
+                    }
+                    sort += c.field.key;
+                    order += c.isDescending ? 'desc' : 'asc';
+                    if (c.isDescending)
+                        hasDescending = true;
+                });
+                if (sort)
+                    url.add('_sort', sort);
+                if (hasDescending)
+                    url.add('_order', order);
+            }
+            if (options.limit)
+                url.add('_limit', options.limit);
+            if (options.page)
+                url.add('_page', options.page);
+        }
+        const run = (action, body) => {
+            let u = new UrlBuilder(url.url);
+            if (!action && filterObject) {
+                action = 'get';
+            }
+            if (action)
+                u.add('__action', action);
+            if (filterObject) {
+                if (method === 'put') {
+                    return this.http().post(u.url, { set: body, where: filterObject });
+                }
+                else
+                    body = { ...body, where: filterObject };
+            }
+            if (body && method != 'put')
+                return this.http().post(u.url, body);
+            else
+                return this.http()[method](u.url, body);
+        };
+        return {
+            createKey: () => JSON.stringify({ url, filterObject }),
+            run,
+            subscribe: async (queryId) => {
+                const result = await run(liveQueryAction + queryId);
+                return {
+                    result,
+                    unsubscribe: async () => {
+                        return remultStatic.actionInfo.runActionWithoutBlockingUI(() => this.http().post(this.url() + '?__action=endLiveQuery', {
+                            id: queryId,
+                        }));
+                    },
+                };
+            },
+        };
+    }
+    update(id, data) {
+        return this.http()
+            .put(this.url() +
+            (id != '' ? '/' + encodeURIComponent(id) : '?__action=emptyId'), this.toJsonOfIncludedKeys(data))
+            .then((y) => this.translateFromJson(y));
+    }
+    toJsonOfIncludedKeys(data) {
+        let result = {};
+        let keys = Object.keys(data);
+        for (const col of this.entity.fields) {
+            if (keys.includes(col.key))
+                result[col.key] = col.valueConverter.toJson(data[col.key]);
+        }
+        return result;
+    }
+    async delete(id) {
+        if (id == '')
+            await this.deleteMany(Filter.fromEntityFilter(this.entity, this.entity.idMetadata.getIdFilter(id)));
+        else
+            return this.http().delete(this.url() + '/' + encodeURIComponent(id));
+    }
+    insert(data) {
+        return this.http()
+            .post(this.url(), this.translateToJson(data))
+            .then((y) => this.translateFromJson(y));
+    }
+    insertMany(data) {
+        return this.http()
+            .post(this.url(), data.map((data) => this.translateToJson(data)))
+            .then((y) => y.map((y) => this.translateFromJson(y)));
+    }
+}
+export class RestDataProviderHttpProviderUsingFetch {
+    fetch;
+    constructor(fetch) {
+        this.fetch = fetch;
+    }
+    async get(url) {
+        return await retry(async () => this.myFetch(url).then((r) => {
+            return r;
+        }));
+    }
+    put(url, data) {
+        return this.myFetch(url, {
+            method: 'put',
+            body: JSON.stringify(data),
+        });
+    }
+    delete(url) {
+        return this.myFetch(url, { method: 'delete' });
+    }
+    async post(url, data) {
+        return await retry(() => this.myFetch(url, {
+            method: 'post',
+            body: JSON.stringify(data),
+        }));
+    }
+    myFetch(url, options) {
+        const headers = {};
+        if (options?.body)
+            headers['Content-type'] = 'application/json';
+        if (typeof window !== 'undefined' &&
+            typeof window.document !== 'undefined' &&
+            typeof (window.document.cookie !== 'undefined'))
+            for (const cookie of window.document.cookie.split(';')) {
+                if (cookie.trim().startsWith('XSRF-TOKEN=')) {
+                    headers['X-XSRF-TOKEN'] = cookie.split('=')[1];
+                }
+            }
+        return (this.fetch || fetch)(url, {
+            credentials: 'include',
+            method: options?.method,
+            body: options?.body,
+            headers,
+        })
+            .then((response) => {
+            return onSuccess(response);
+        })
+            .catch(async (error) => {
+            let r = await error;
+            throw r;
+        });
+    }
+}
+function onSuccess(response) {
+    if (response.status == 204)
+        return;
+    if (response.status >= 200 && response.status < 300)
+        return response.json();
+    else {
+        throw response
+            .json()
+            .then((x) => {
+            return {
+                ...x,
+                message: x.message || response.statusText,
+                url: response.url,
+                status: response.status,
+            };
+        })
+            .catch(() => {
+            throw {
+                message: response.statusText,
+                url: response.url,
+                status: response.status,
+            };
+        });
+    }
+}
+export function addFilterToUrlAndReturnTrueIfSuccessful(filter, url) {
+    for (const key in filter) {
+        if (Object.prototype.hasOwnProperty.call(filter, key)) {
+            const element = filter[key];
+            if (Array.isArray(element)) {
+                if (element.length > 0 && typeof element[0] === 'object')
+                    return false;
+                if (element.length > 10)
+                    return false;
+            }
+            if (key === 'NOT')
+                return false;
+        }
+    }
+    for (const key in filter) {
+        if (Object.prototype.hasOwnProperty.call(filter, key)) {
+            const element = filter[key];
+            if (Array.isArray(element)) {
+                if (key.endsWith('.in'))
+                    url.add(key, JSON.stringify(element));
+                else
+                    element.forEach((e) => url.add(key, e));
+            }
+            else if (key.startsWith(customUrlToken))
+                url.add(key, JSON.stringify(element));
+            else
+                url.add(key, element);
+        }
+    }
+    return true;
+}
+export const liveQueryAction = 'liveQuery-';

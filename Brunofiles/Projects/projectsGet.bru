@@ -1,0 +1,64 @@
+meta {
+  name: projectsGet
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/projects
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer bb3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+docs {
+  # Принимает
+  GET запрос
+  
+  Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  [
+    {
+      "id": "28162471-d635-45ee-a5e7-32a8f1951377",
+      "ownerId": "",
+      "email": "",
+      "name": null
+    },
+    {
+      "id": "31c84f30-ef28-4c66-a465-950e4de8d594",
+      "ownerId": "",
+      "email": "",
+      "name": null
+    },
+    {
+      "id": "77341169-558b-4d4f-9fda-4e2b6bb79d7e",
+      "ownerId": "",
+      "email": "",
+      "name": null
+    }
+  ]
+  ```
+  
+  ## Код 400
+  Объект ошибки:
+  ```
+  {
+    "message": "Forbidden"
+  }
+  ```
+  
+  
+}

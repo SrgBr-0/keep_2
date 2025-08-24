@@ -1,0 +1,196 @@
+import { buildRestDataProvider } from '../buildRestDataProvider.js';
+import { RestDataProvider } from '../data-providers/rest-data-provider.js';
+import { remultStatic } from '../remult-static.js';
+import { getRepositoryInternals } from '../remult3/repository-internals.js';
+import { liveQueryKeepAliveRoute, LiveQuerySubscriber, } from './SubscriptionChannel.js';
+/* @internal*/
+export class LiveQueryClient {
+    apiProvider;
+    getUserId;
+    wrapMessageHandling(handleMessage) {
+        var x = this.apiProvider().wrapMessageHandling;
+        if (x)
+            x(handleMessage);
+        else
+            handleMessage();
+    }
+    queries = new Map();
+    hasQueriesForTesting() {
+        return this.queries.size > 0;
+    }
+    channels = new Map();
+    constructor(apiProvider, getUserId) {
+        this.apiProvider = apiProvider;
+        this.getUserId = getUserId;
+    }
+    runPromise(p) {
+        return p;
+    }
+    close() {
+        this.queries.clear();
+        this.channels.clear();
+        this.closeIfNoListeners();
+    }
+    async subscribeChannel(key, onResult) {
+        let onUnsubscribe = () => { };
+        const client = await this.openIfNoOpened();
+        try {
+            let q = this.channels.get(key);
+            if (!q) {
+                this.channels.set(key, (q = new MessageChannel()));
+                try {
+                    q.unsubscribe = await client.subscribe(key, (value) => this.wrapMessageHandling(() => q.handle(value)), (err) => {
+                        onResult.error(err);
+                    });
+                }
+                catch (err) {
+                    onResult.error(err);
+                    throw err;
+                }
+            }
+            q.listeners.push(onResult);
+            onUnsubscribe = () => {
+                q.listeners.splice(q.listeners.indexOf(onResult), 1);
+                if (q.listeners.length == 0) {
+                    this.channels.delete(key);
+                    q.unsubscribe();
+                }
+                this.closeIfNoListeners();
+            };
+        }
+        catch (err) {
+            onResult.error(err);
+            throw err;
+        }
+        return () => {
+            onUnsubscribe();
+            onUnsubscribe = () => { };
+        };
+    }
+    closeIfNoListeners() {
+        if (this.client)
+            if (this.queries.size === 0 && this.channels.size === 0) {
+                this.runPromise(this.client.then((x) => x.close()));
+                this.client = undefined;
+                clearInterval(this.interval);
+                this.interval = undefined;
+            }
+    }
+    subscribe(repo, options, listener) {
+        let alive = true;
+        let onUnsubscribe = () => {
+            alive = false;
+        };
+        this.runPromise(getRepositoryInternals(repo)
+            ._buildEntityDataProviderFindOptions(options)
+            .then((opts) => {
+            if (!alive)
+                return;
+            const { createKey, subscribe } = new RestDataProvider(this.apiProvider)
+                .getEntityDataProvider(repo.metadata)
+                .buildFindRequest(opts);
+            const eventTypeKey = createKey();
+            let q = this.queries.get(eventTypeKey);
+            if (!q) {
+                this.queries.set(eventTypeKey, (q = new LiveQuerySubscriber(repo, { entityKey: repo.metadata.key, options }, this.getUserId())));
+                q.subscribeCode = () => {
+                    if (q.unsubscribe) {
+                        q.unsubscribe();
+                        q.unsubscribe = () => { };
+                    }
+                    this.runPromise(this.subscribeChannel(q.queryChannel, {
+                        next: (value) => this.runPromise(q.handle(value)),
+                        complete: () => { },
+                        error: (er) => {
+                            q.listeners.forEach((l) => l.error(er));
+                        },
+                    }).then((unsubscribeToChannel) => {
+                        if (q.listeners.length == 0) {
+                            unsubscribeToChannel();
+                            return;
+                        }
+                        this.runPromise(subscribe(q.queryChannel)
+                            .then((r) => {
+                            if (q.listeners.length === 0) {
+                                r.unsubscribe();
+                                unsubscribeToChannel();
+                                return;
+                            }
+                            this.runPromise(q.setAllItems(r.result));
+                            q.unsubscribe = () => {
+                                q.unsubscribe = () => { };
+                                unsubscribeToChannel();
+                                this.runPromise(r.unsubscribe());
+                            };
+                        })
+                            .catch((err) => {
+                            q.listeners.forEach((l) => l.error(err));
+                            unsubscribeToChannel();
+                            this.queries.delete(eventTypeKey);
+                        }));
+                    })).catch((err) => {
+                        q.listeners.forEach((l) => l.error(err));
+                    });
+                };
+                q.subscribeCode();
+            }
+            else {
+                q.sendDefaultState(listener.next);
+            }
+            q.listeners.push(listener);
+            onUnsubscribe = () => {
+                q.listeners.splice(q.listeners.indexOf(listener), 1);
+                listener.complete();
+                if (q.listeners.length == 0) {
+                    this.queries.delete(eventTypeKey);
+                    q.unsubscribe();
+                }
+                this.closeIfNoListeners();
+            };
+        })
+            .catch((err) => {
+            listener.error(err);
+        }));
+        return () => {
+            onUnsubscribe();
+        };
+    }
+    client;
+    interval;
+    openIfNoOpened() {
+        if (!this.client) {
+            this.interval = setInterval(async () => {
+                const ids = [];
+                for (const q of this.queries.values()) {
+                    ids.push(q.queryChannel);
+                }
+                if (ids.length > 0) {
+                    let p = this.apiProvider();
+                    const invalidIds = await this.runPromise(await remultStatic.actionInfo.runActionWithoutBlockingUI(() => buildRestDataProvider(p.httpClient).post(p.url + '/' + liveQueryKeepAliveRoute, ids)));
+                    for (const id of invalidIds) {
+                        for (const q of this.queries.values()) {
+                            if (q.queryChannel === id)
+                                q.subscribeCode();
+                        }
+                    }
+                }
+            }, 30000);
+            return this.runPromise((this.client = this.apiProvider().subscriptionClient.openConnection(() => {
+                for (const q of this.queries.values()) {
+                    q.subscribeCode();
+                }
+            })));
+        }
+        return this.client;
+    }
+}
+class MessageChannel {
+    unsubscribe = () => { };
+    async handle(message) {
+        for (const l of this.listeners) {
+            l.next(message);
+        }
+    }
+    listeners = [];
+    constructor() { }
+}

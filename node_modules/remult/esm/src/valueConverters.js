@@ -1,0 +1,214 @@
+import { InputTypes } from '../inputTypes.js';
+export class ValueConverters {
+    static Date = {
+        toJson: (val) => {
+            if (val === null)
+                return null;
+            if (!val)
+                return '';
+            if (typeof val === 'string')
+                val = new Date(val);
+            if (val instanceof Date) {
+                return val.toISOString();
+            }
+            else {
+                throw new Error('Expected date but got ' + val);
+            }
+        },
+        fromJson: (val) => {
+            if (val === null)
+                return null;
+            if (val == undefined)
+                return undefined;
+            if (val == '')
+                return undefined;
+            if (val.startsWith('0000-00-00'))
+                return undefined;
+            return new Date(Date.parse(val));
+        },
+        toDb: (x) => x,
+        fromDb: (val) => {
+            if (typeof val === 'number')
+                val = new Date(val);
+            if (typeof val === 'string')
+                val = new Date(val);
+            if (val && !(val instanceof Date))
+                throw 'expected date but got ' + val;
+            return val;
+        },
+        fromInput: (x) => ValueConverters.Date.fromJson(x),
+        toInput: (x) => ValueConverters.Date.toJson(x),
+        displayValue: (val) => {
+            if (!val)
+                return '';
+            return val.toLocaleString();
+        },
+    };
+    static DateOnly = {
+        fromInput: (x) => ValueConverters.DateOnly.fromJson(x),
+        toInput: (x) => ValueConverters.DateOnly.toJson(x),
+        toJson: (val) => {
+            var d = val;
+            if (typeof d === 'string' || typeof d === 'number')
+                d = new Date(d);
+            if (d === undefined)
+                return undefined;
+            if (!d || d == null)
+                return null;
+            if (d.getHours() == 0)
+                return new Date(d.valueOf() - d.getTimezoneOffset() * 60000)
+                    .toISOString()
+                    .substring(0, 10);
+            else
+                return d.toISOString().substring(0, 10);
+        },
+        fromJson: (value) => {
+            if (!value || value == '' || value == '0000-00-00')
+                return null;
+            let d = new Date(Date.parse(value));
+            d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+            return d;
+        },
+        inputType: InputTypes.date,
+        toDb: (val) => {
+            if (!val)
+                return null;
+            return ValueConverters.DateOnly.fromJson(ValueConverters.DateOnly.toJson(val));
+        }, //when using date storage,  the database expects and returns a date local and every where else we reflect on date iso
+        fromDb: (val) => {
+            return ValueConverters.Date.fromDb(val);
+        },
+        fieldTypeInDb: 'date',
+        displayValue: (value) => {
+            if (!value)
+                return '';
+            return value.toLocaleDateString(undefined);
+        },
+    };
+    static DateOnlyString = {
+        ...ValueConverters.DateOnly,
+        toDb: (d) => {
+            let val = ValueConverters.DateOnly.toJson(d);
+            if (!val)
+                return undefined;
+            return val.replace(/-/g, '');
+        },
+        fromDb: (val) => {
+            if (val === null)
+                return null;
+            if (!val)
+                return undefined;
+            return new Date(val.substring(0, 4) +
+                '-' +
+                val.substring(4, 6) +
+                '-' +
+                val.substring(6, 8));
+        },
+    };
+    static Boolean = {
+        toDb: (val) => val,
+        inputType: InputTypes.checkbox,
+        fromDb: (value) => {
+            return ValueConverters.Boolean.fromJson(value);
+        },
+        fromJson: (value) => {
+            if (typeof value === 'boolean')
+                return value;
+            if (value === 1)
+                return true;
+            if (value !== undefined && value !== null) {
+                return value.toString().trim().toLowerCase() == 'true';
+            }
+            return value;
+        },
+        toJson: (x) => x,
+        fromInput: (x) => ValueConverters.Boolean.fromJson(x),
+        toInput: (x) => ValueConverters.Boolean.toJson(x),
+    };
+    static Number = {
+        fromDb: (value) => {
+            if (value === null)
+                return null;
+            if (value !== undefined)
+                return +value;
+            return undefined;
+        },
+        toDb: (value) => value,
+        fromJson: (value) => ValueConverters.Number.fromDb(value),
+        toJson: (value) => ValueConverters.Number.toDb(value),
+        fromInput: (x, type) => {
+            let r = +x;
+            if (x === null)
+                return null;
+            if (x === undefined)
+                return undefined;
+            return r;
+        },
+        toInput: (x, type) => {
+            return x?.toString() ?? '';
+        },
+        inputType: InputTypes.number,
+    };
+    static String = {
+        fromDb: enforceString,
+        toDb: enforceString,
+        fromJson: enforceString,
+        toJson: enforceString,
+        fromInput: enforceString,
+        toInput: enforceString,
+    };
+    static Integer = {
+        ...ValueConverters.Number,
+        toJson: (value) => {
+            let val = ValueConverters.Number.toDb(value);
+            if (!val)
+                return val;
+            return +(+val).toFixed(0);
+        },
+        toDb: (value) => ValueConverters.Integer.toJson(value),
+        fieldTypeInDb: 'integer',
+    };
+    static Default = {
+        fromJson: (x) => x,
+        toJson: (x) => x,
+        fromDb: (x) => ValueConverters.JsonString.fromDb(x),
+        toDb: (x) => ValueConverters.JsonString.toDb(x),
+        fromInput: (x) => ValueConverters.Default.fromJson(x),
+        toInput: (x) => ValueConverters.Default.toJson(x),
+        displayValue: (x) => x + '',
+        fieldTypeInDb: '',
+        inputType: 'text',
+    };
+    static JsonString = {
+        fromJson: (x) => x,
+        toJson: (x) => x,
+        fromDb: (x) => x == null
+            ? null
+            : x
+                ? JSON.parse(ValueConverters.JsonString.fromJson(x))
+                : undefined,
+        toDb: (x) => x !== undefined
+            ? x === null
+                ? null
+                : JSON.stringify(ValueConverters.JsonString.toJson(x))
+            : undefined,
+        fromInput: (x) => ValueConverters.JsonString.fromJson(x),
+        toInput: (x) => ValueConverters.JsonString.toJson(x),
+    };
+    static JsonValue = {
+        fromJson: (x) => x,
+        toJson: (x) => x,
+        fromDb: (x) => x,
+        toDb: (x) => x,
+        fromInput: (x) => ValueConverters.JsonString.fromJson(x),
+        toInput: (x) => ValueConverters.JsonString.toJson(x),
+        fieldTypeInDb: 'json',
+    };
+}
+function enforceString(value) {
+    if (value === null || value === undefined)
+        return value;
+    if (typeof value !== 'string')
+        return value.toString();
+    return value;
+}

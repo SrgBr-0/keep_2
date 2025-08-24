@@ -1,0 +1,77 @@
+meta {
+  name: createInboxCard
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/api/createInboxCard
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer da17362cb1a8de878ff1b4c30a2d4c2959421fe784d556813a622795c74f8123
+}
+
+body:json {
+  {
+    "args": [
+      "1234567",
+      { "title": "Test card", "description": "Just a note" },
+      { "priority": "low" }
+    ]
+  }
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "args": [
+      "inbox-context-id",
+      { "title": "Test card", "description": "Just a note" },
+      { "priority": "low" }
+    ]
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  {
+    "data": {
+      "contextId": "inbox-context-id",
+      "sectionId": null,
+      "content": {
+        "title": "Test card",
+        "description": "Just a note"
+      },
+      "info": {
+        "priority": "low"
+      },
+      "updatedAt": "2025-08-24T10:31:29.677Z",
+      "id": "f7433xg80036sceaw2o28el5",
+      "createdAt": "2025-08-24T10:31:29.683Z",
+      "lastModifiedAt": "2025-08-24T10:31:29.683Z"
+    }
+  }
+  ```
+  
+  ## Код 400
+  ```
+  {
+    "message": "unauthorized"
+  }
+  ```
+  
+}
