@@ -1,6 +1,6 @@
 import { Entity, Fields, IdEntity } from "remult";
 
-@Entity<AppContext>("contexts", { allowApiCrud: true })
+@Entity<AppContext>("context", { allowApiCrud: true })
 export class AppContext extends IdEntity {
     @Fields.string() ownerId = "";
     @Fields.string() name = "";

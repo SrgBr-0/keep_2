@@ -1,0 +1,68 @@
+meta {
+  name: cardsPost
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/cards
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 4b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+body:json {
+  {
+    "contextId": "ctx123",
+    "sectionId": null,
+    "content": { "title": "Тестовая карточка" },
+    "info": { "color": "blue" },
+    "updatedAt": "2025-08-15T12:00:00Z"
+  }
+  
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "contextId": "ctx123",
+    "sectionId": null,
+    "content": { "title": "Тестовая карточка" },
+    "info": { "color": "blue" },
+    "updatedAt": "2025-08-15T12:00:00Z"
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 201
+  В Response возвращаетя:
+  ```
+  {
+    "id": "vi69tp7559xzu1phvntlms0l",
+    "contextId": "ctx123",
+    "sectionId": null,
+    "content": {
+      "title": "Тестовая карточка"
+    },
+    "info": {
+      "color": "blue"
+    },
+    "updatedAt": "2025-08-15T12:00:00.000Z",
+    "createdAt": "2025-08-24T11:28:47.117Z",
+    "lastModifiedAt": "2025-08-24T11:28:47.117Z"
+  }
+  ```
+  
+}

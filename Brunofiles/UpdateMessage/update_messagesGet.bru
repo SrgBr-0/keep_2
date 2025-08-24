@@ -1,13 +1,17 @@
 meta {
-  name: projectsGet
+  name: update_messagesGet
   type: http
   seq: 1
 }
 
 get {
-  url: http://localhost:3000/api/projects
+  url: http://localhost:3000/api/update_messages?userId=09b065f6-bc20-4815-83af-9f33b9abdf40
   body: none
   auth: none
+}
+
+params:query {
+  userId: 09b065f6-bc20-4815-83af-9f33b9abdf40
 }
 
 headers {
@@ -18,6 +22,9 @@ headers {
 docs {
   # Принимает
   GET запрос
+  ```
+  userId: 09b065f6-bc20-4815-83af-9f33b9abdf40
+  ```
   
   Headers формата:
   ```
@@ -32,33 +39,18 @@ docs {
   ```
   [
     {
-      "id": "28162471-d635-45ee-a5e7-32a8f1951377",
-      "ownerId": "",
-      "email": "",
-      "name": null
-    },
-    {
-      "id": "31c84f30-ef28-4c66-a465-950e4de8d594",
-      "ownerId": "",
-      "email": "",
-      "name": null
-    },
-    {
-      "id": "77341169-558b-4d4f-9fda-4e2b6bb79d7e",
-      "ownerId": "",
-      "email": "",
-      "name": null
+      "id": "c1bbf0d2-70c0-44f2-9ea2-fe35517cf7fb",
+      "clientId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+      "serverTime": "2025-08-24T12:36:45.333Z",
+      "type": "CardInfo",
+      "data": {},
+      "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+      "contextId": ""
     }
   ]
   ```
   
   ## Код 400
-  Объект ошибки:
-  ```
-  {
-    "message": "Forbidden"
-  }
-  ```
   
   
 }

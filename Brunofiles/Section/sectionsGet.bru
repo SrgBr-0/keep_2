@@ -1,0 +1,53 @@
+meta {
+  name: sectionsGet
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/sections?id=498cc81d-a6bb-42c3-8718-53c6c9d45c7b
+  body: none
+  auth: none
+}
+
+params:query {
+  id: 498cc81d-a6bb-42c3-8718-53c6c9d45c7b
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer bb3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+docs {
+  # Принимает
+  GET запрос
+  ```
+  contextId: ctx_123
+  ```
+  
+  Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  [
+    {
+      "id": "498cc81d-a6bb-42c3-8718-53c6c9d45c7b",
+      "contextId": "ctx_123",
+      "name": "Backlog",
+      "order": 1
+    }
+  ]
+  ```
+  
+  ## Код 400
+  
+  
+}

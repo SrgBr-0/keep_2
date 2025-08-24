@@ -1,0 +1,53 @@
+meta {
+  name: context_usersGet
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/context_users?userId=09b065f6-bc20-4815-83af-9f33b9abdf40
+  body: none
+  auth: none
+}
+
+params:query {
+  userId: 09b065f6-bc20-4815-83af-9f33b9abdf40
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer bb3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+docs {
+  # Принимает
+  GET запрос
+  ```
+  userId: 09b065f6-bc20-4815-83af-9f33b9abdf40
+  ```
+  
+  Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  [
+    {
+      "id": "49bb3bf0-c4e5-49be-a880-65d7e3ec33ef",
+      "contextId": "",
+      "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+      "role": "owner"
+    }
+  ]
+  ```
+  
+  ## Код 400
+  
+  
+}

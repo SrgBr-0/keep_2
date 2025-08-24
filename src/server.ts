@@ -103,35 +103,35 @@ async function startServer() {
         app.use(api);
 
         // Health check endpoint
-        app.get('/health', (req, res) => {
-            res.json({
-                status: 'ok',
-                timestamp: new Date().toISOString(),
-                environment: process.env.NODE_ENV,
-                endpoints: [
-                    'POST /api/sendCode',
-                    'POST /api/verifyCode',
-                    'POST /api/changePassword',
-                    'POST /api/logoutAll',
-                    'GET /api/admin'
-                ]
-            });
-        });
+        // app.get('/health', (req, res) => {
+        //     res.json({
+        //         status: 'ok',
+        //         timestamp: new Date().toISOString(),
+        //         environment: process.env.NODE_ENV,
+        //         endpoints: [
+        //             'POST /api/sendCode',
+        //             'POST /api/verifyCode',
+        //             'POST /api/changePassword',
+        //             'POST /api/logoutAll',
+        //             'GET /api/admin'
+        //         ]
+        //     });
+        // });
 
         // Debug endpoint для проверки доступных методов
-        app.get('/debug/endpoints', (req, res) => {
-            res.json({
-                message: 'Available backend methods',
-                methods: [
-                    'AuthController.sendCode',
-                    'AuthController.verifyCode',
-                    'AuthController.changePassword',
-                    'AuthController.logoutAll'
-                ],
-                note: 'Use POST requests to /api/{methodName}',
-                auth: 'Use Authorization: Bearer {token} for protected endpoints'
-            });
-        });
+        // app.get('/debug/endpoints', (req, res) => {
+        //     res.json({
+        //         message: 'Available backend methods',
+        //         methods: [
+        //             'AuthController.sendCode',
+        //             'AuthController.verifyCode',
+        //             'AuthController.changePassword',
+        //             'AuthController.logoutAll'
+        //         ],
+        //         note: 'Use POST requests to /api/{methodName}',
+        //         auth: 'Use Authorization: Bearer {token} for protected endpoints'
+        //     });
+        // });
 
         // Error handling
         app.use(errorHandler);

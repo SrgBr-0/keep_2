@@ -1,0 +1,41 @@
+meta {
+  name: sectionsDelete
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:3000/api/sections/498cc81d-a6bb-42c3-8718-53c6c9d45c7b
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 3b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+docs {
+  # Принимает
+  DELETE запрос
+  
+  Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 204 в случае успешного удаления
+  
+  ## Код 404
+  Объект ошибки:
+  ```
+  {
+    "message": "NotFound"
+  }
+  ```
+  
+  
+}

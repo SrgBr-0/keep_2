@@ -1,11 +1,11 @@
 meta {
-  name: contactsPut
+  name: cardsPut
   type: http
   seq: 3
 }
 
 put {
-  url: http://localhost:3000/api/contacts/4214071f-fb4b-49e1-8dd4-0de63b93e55e
+  url: http://localhost:3000/api/cards/vi69tp7559xzu1phvntlms0l
   body: json
   auth: none
 }
@@ -17,11 +17,7 @@ headers {
 
 body:json {
   {
-    "args": [
-      {
-        "name": "Updated Friend"
-      }
-    ]
+    "content": { "title": "Обновлённая карточка" }
   }
   
   
@@ -32,11 +28,7 @@ docs {
   PUT запрос с Body формата:
   ```
   {
-    "args": [
-      {
-        "name": "Updated Friend"
-      }
-    ]
+    "content": { "title": "Обновлённая карточка" }
   }
   ```
   и Headers формата:
@@ -51,20 +43,19 @@ docs {
   В Response возвращаетя:
   ```
   {
-    "id": "4214071f-fb4b-49e1-8dd4-0de63b93e55e",
-    "ownerId": "",
-    "email": "",
-    "name": null
+    "id": "vi69tp7559xzu1phvntlms0l",
+    "contextId": "ctx123",
+    "sectionId": null,
+    "content": {
+      "title": "Обновлённая карточка"
+    },
+    "info": {
+      "color": "blue"
+    },
+    "updatedAt": "2025-08-15T12:00:00.000Z",
+    "createdAt": "2025-08-24T11:28:47.117Z",
+    "lastModifiedAt": "2025-08-24T11:30:17.235Z"
   }
   ```
-  
-  ## Код 404
-  Объект ошибки:
-  ```
-  {
-    "message": "NotFound"
-  }
-  ```
-  
   
 }

@@ -1,6 +1,6 @@
 import { Entity, Fields, IdEntity } from "remult";
 
-@Entity<Project>("projects", { allowApiCrud: true })
+@Entity<Project>("project", { allowApiCrud: true })
 export class Project extends IdEntity {
     @Fields.string() ownerId = "";
     @Fields.string() name = "";

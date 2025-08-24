@@ -1,0 +1,55 @@
+meta {
+  name: notificationsPut
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:3000/api/notifications/62fa878b-1b75-461c-a9af-475b56bd3419
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 3b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+body:json {
+  {
+    "title": "Founder"
+  }
+  
+  
+}
+
+docs {
+  # Принимает
+  PUT запрос с Body формата:
+  ```
+  {
+    "title": "Founder"
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  {
+    "id": "62fa878b-1b75-461c-a9af-475b56bd3419",
+    "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+    "title": "Founder",
+    "body": "456",
+    "read": false,
+    "createdAt": "2025-08-24T12:08:57.567Z"
+  }
+  ```
+  
+}

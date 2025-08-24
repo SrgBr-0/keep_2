@@ -1,0 +1,55 @@
+meta {
+  name: contextsGet
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/context?ownerId=12345
+  body: none
+  auth: none
+}
+
+params:query {
+  ownerId: 12345
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer da17362cb1a8de878ff1b4c30a2d4c2959421fe784d556813a622795c74f8123
+}
+
+docs {
+  # Принимает
+  GET запрос
+  ```
+  ownerId: 12345
+  ```
+  
+  Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  [
+    {
+      "id": "803c1b2b-1c9a-4548-a95f-0d8b7f96494d",
+      "ownerId": "12345",
+      "name": "Folder",
+      "projectId": "2345",
+      "isInbox": false,
+      "pinned": false
+    }
+  ]
+  ```
+  
+  ## Код 400
+  
+  
+}

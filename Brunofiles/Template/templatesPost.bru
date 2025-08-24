@@ -1,11 +1,11 @@
 meta {
-  name: contactsPost
+  name: templatesPost
   type: http
   seq: 2
 }
 
 post {
-  url: http://localhost:3000/api/contacts
+  url: http://localhost:3000/api/templates
   body: json
   auth: none
 }
@@ -17,14 +17,9 @@ headers {
 
 body:json {
   {
-    "args": [
-      {
-        "email": "friend@example.com",
-        "name": "Friend Name"
-      }
-    ]
+    "name": "Шаблон карточки",
+    "content": { "defaultText": "..." }
   }
-  
 }
 
 docs {
@@ -32,12 +27,8 @@ docs {
   POST запрос с Body формата:
   ```
   {
-    "args": [
-      {
-        "email": "friend@example.com",
-        "name": "Friend Name"
-      }
-    ]
+    "name": "Шаблон карточки",
+    "content": { "defaultText": "..." }
   }
   ```
   и Headers формата:
@@ -52,10 +43,10 @@ docs {
   В Response возвращаетя:
   ```
   {
-    "id": "4214071f-fb4b-49e1-8dd4-0de63b93e55e",
+    "id": "13b5e4c5-ebad-445a-b078-918df49be6f2",
     "ownerId": "",
-    "email": "",
-    "name": null
+    "name": "Шаблон карточки",
+    "payload": {}
   }
   ```
   

@@ -1,0 +1,55 @@
+meta {
+  name: projectsPost
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/project
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 4b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+body:json {
+  {
+    "name": "My Project",
+    "ownerId": "12345",
+    "description": "aaa"
+  }
+}
+
+docs {
+  # Принимает
+  POST запрос с Body формата:
+  ```
+  {
+    "name": "My Project",
+    "ownerId": "12345",
+    "description": "aaa"
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 201
+  В Response возвращаетя:
+  ```
+  {
+    "id": "ce1fcebb-857a-4bec-88e1-51eb1f41022a",
+    "ownerId": "12345",
+    "name": "My Project",
+    "description": "aaa"
+  }
+  ```
+  
+}

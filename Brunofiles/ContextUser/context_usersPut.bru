@@ -1,0 +1,53 @@
+meta {
+  name: context_usersPut
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:3000/api/context_users/49bb3bf0-c4e5-49be-a880-65d7e3ec33ef
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 3b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+body:json {
+  {
+    "role": "editor"
+  }
+  
+  
+}
+
+docs {
+  # Принимает
+  PUT запрос с Body формата:
+  ```
+  {
+    "role": "editor"
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  {
+    "id": "49bb3bf0-c4e5-49be-a880-65d7e3ec33ef",
+    "contextId": "",
+    "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+    "role": "editor"
+  }
+  ```
+  
+}

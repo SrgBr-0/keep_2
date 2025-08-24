@@ -1,0 +1,60 @@
+meta {
+  name: projectsPut
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:3000/api/project/ce1fcebb-857a-4bec-88e1-51eb1f41022a
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer 3b3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+body:json {
+  {
+    "name": "Updated Project Name"
+  }
+}
+
+docs {
+  # Принимает
+  PUT запрос с Body формата:
+  ```
+  {
+    "name": "Updated Project Name"
+  }
+  ```
+  и Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  {
+    "id": "ce1fcebb-857a-4bec-88e1-51eb1f41022a",
+    "ownerId": "12345",
+    "name": "Updated Project Name",
+    "description": "aaa"
+  }
+  ```
+  
+  ## Код 404
+  Объект ошибки:
+  ```
+  {
+    "message": "NotFound"
+  }
+  ```
+  
+  
+}

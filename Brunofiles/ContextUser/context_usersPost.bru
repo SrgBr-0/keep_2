@@ -1,11 +1,11 @@
 meta {
-  name: projectsPost
+  name: context_usersPost
   type: http
   seq: 2
 }
 
 post {
-  url: http://localhost:3000/api/projects
+  url: http://localhost:3000/api/context_users
   body: json
   auth: none
 }
@@ -17,11 +17,9 @@ headers {
 
 body:json {
   {
-    "args": [
-      { "name": "My Project" }
-    ]
+    "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+    "role": "owner"
   }
-  
 }
 
 docs {
@@ -29,9 +27,8 @@ docs {
   POST запрос с Body формата:
   ```
   {
-    "args": [
-      { "name": "My Project" }
-    ]
+    "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+    "role": "owner"
   }
   ```
   и Headers формата:
@@ -46,10 +43,10 @@ docs {
   В Response возвращаетя:
   ```
   {
-    "id": "42615a6e-26e4-4778-bbd2-41e17cbf927a",
-    "ownerId": "",
-    "email": "",
-    "name": null
+    "id": "49bb3bf0-c4e5-49be-a880-65d7e3ec33ef",
+    "contextId": "",
+    "userId": "09b065f6-bc20-4815-83af-9f33b9abdf40",
+    "role": "owner"
   }
   ```
   

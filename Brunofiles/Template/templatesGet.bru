@@ -1,0 +1,53 @@
+meta {
+  name: templatesGet
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/templates?id=13b5e4c5-ebad-445a-b078-918df49be6f2
+  body: none
+  auth: none
+}
+
+params:query {
+  id: 13b5e4c5-ebad-445a-b078-918df49be6f2
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer bb3b179e72fd400751f28d57f6aac7abcbc406e5c867a7d89c451ebdc0936e61
+}
+
+docs {
+  # Принимает
+  GET запрос
+  ```
+  contextId: ctx_123
+  ```
+  
+  Headers формата:
+  ```
+  Content-Type: application/json
+  Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
+  ```
+  
+  # Возвращает 
+  
+  ## Код 200
+  В Response возвращаетя:
+  ```
+  [
+    {
+      "id": "13b5e4c5-ebad-445a-b078-918df49be6f2",
+      "ownerId": "",
+      "name": "Шаблон карточки",
+      "payload": {}
+    }
+  ]
+  ```
+  
+  ## Код 400
+  
+  
+}

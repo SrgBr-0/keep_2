@@ -1,11 +1,11 @@
 meta {
-  name: projectsPut
+  name: contextsDelete
   type: http
-  seq: 3
+  seq: 4
 }
 
-put {
-  url: http://localhost:3000/api/projects/749bf1d1-4fc4-4bb7-aee7-579400ebd521
+delete {
+  url: http://localhost:3000/api/context/803c1b2b-1c9a-4548-a95f-0d8b7f96494d
   body: json
   auth: none
 }
@@ -17,9 +17,7 @@ headers {
 
 body:json {
   {
-    "args": [
-      { "name": "Updated Project Name" }
-    ]
+    "content": { "title": "Обновлённая карточка" }
   }
   
   
@@ -27,15 +25,9 @@ body:json {
 
 docs {
   # Принимает
-  PUT запрос с Body формата:
-  ```
-  {
-    "args": [
-      { "name": "Updated Project Name" }
-    ]
-  }
-  ```
-  и Headers формата:
+  DELETE запрос
+  
+  Headers формата:
   ```
   Content-Type: application/json
   Authorization: Bearer c52beff742a556d445c7072c592f7f515d3e6db596bcc141b86c38abf6cba1b4
@@ -43,16 +35,7 @@ docs {
   
   # Возвращает 
   
-  ## Код 200
-  В Response возвращаетя:
-  ```
-  {
-    "id": "4214071f-fb4b-49e1-8dd4-0de63b93e55e",
-    "ownerId": "",
-    "email": "",
-    "name": null
-  }
-  ```
+  ## Код 204 в случае успешного удаления
   
   ## Код 404
   Объект ошибки:
